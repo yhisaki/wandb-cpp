@@ -34,7 +34,7 @@ class PyBasicType : public CastablePyObjectBase {
   ValueType value;
 
  public:
-  PyBasicType(ValueType value) : value(value) {}
+  PyBasicType(const ValueType& value) : value(value) {}
   PyObject* get_pyobject() const;
 };
 

@@ -17,6 +17,7 @@ class wandb {
   internal::object::SharedPyObjectPtr init_;
   internal::object::SharedPyObjectPtr log_;
   internal::object::SharedPyObjectPtr config_;
+  internal::object::SharedPyObjectPtr summary_;
   internal::object::SharedPyObjectPtr save_;
 
  public:
@@ -28,11 +29,9 @@ class wandb {
 
   void save(const std::string& file_path);
 
-  void add_config(const internal::object::PyDictItem conf) {
-    internal::object::SharedPyObjectPtr conf_value(
-        conf.get_pyobject_of_value());
-    PyObject_SetAttrString(config_.get(), conf.key(), conf_value.get());
-  }
+  void add_config(const internal::object::PyDictItem& conf);
+
+  void add_summary(const internal::object::PyDictItem& summ);
 };
 
 void init(std::string project, std::string name = "",
@@ -44,6 +43,9 @@ void save(const std::string& file_path);
 
 void add_config(
     const std::initializer_list<internal::object::PyDictItem>& confs);
+
+void add_summary(
+    const std::initializer_list<internal::object::PyDictItem>& summs);
 
 }  // namespace wandbcpp
 

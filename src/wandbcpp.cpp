@@ -37,6 +37,7 @@ void wandb::init(const std::string& project, const std::string& name,
 
   log_ = PyObject_GetAttrString(wandb_module_.get(), "log");
   config_ = PyObject_GetAttrString(wandb_module_.get(), "config");
+  summary_ = PyObject_GetAttrString(wandb_module_.get(), "summary");
   save_ = PyObject_GetAttrString(wandb_module_.get(), "save");
 }
 
@@ -44,6 +45,16 @@ void wandb::log(const PyDict& logs) { PyCall(log_, PyTuple(logs)); }
 
 void wandb::save(const std::string& file_path) {
   PyCall(save_, PyTuple(file_path));
+}
+
+void wandb::add_config(const internal::object::PyDictItem& conf) {
+  internal::object::SharedPyObjectPtr conf_value(conf.get_pyobject_of_value());
+  PyObject_SetAttrString(config_.get(), conf.key(), conf_value.get());
+}
+
+void wandb::add_summary(const internal::object::PyDictItem& summ) {
+  internal::object::SharedPyObjectPtr summ_value(summ.get_pyobject_of_value());
+  PyObject_SetAttrString(summary_.get(), summ.key(), summ_value.get());
 }
 
 using namespace internal::async;
@@ -75,6 +86,15 @@ void add_config(const std::initializer_list<PyDictItem>& confs) {
   }
   for (const auto& conf : confs) {
     logging_worker->append_config(conf);
+  }
+}
+
+void add_summary(const std::initializer_list<PyDictItem>& summs) {
+  if (!logging_worker) {
+    logging_worker = std::make_unique<internal::async::AsyncLoggingWorker>();
+  }
+  for (const auto& summ : summs) {
+    logging_worker->append_summary(summ);
   }
 }
 

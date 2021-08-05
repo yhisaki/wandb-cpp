@@ -51,6 +51,16 @@ void AsyncLoggingWorker::worker() {
         wandb_->add_config(config);
       }
     }
+    if (!is_summary_buffer_empty()) {
+      std::vector<object::PyDictItem> summary_buffer_moved_;
+      {
+        std::lock_guard<std::mutex> lock(summary_buffer_mutex_);
+        summary_buffer_moved_ = std::move(summary_buffer_);
+      }
+      for (auto&& summary : summary_buffer_moved_) {
+        wandb_->add_summary(summary);
+      }
+    }
     if (!is_file_path_buffer_empty()) {
       std::vector<std::string> file_path_buffer_moved_;
       {
@@ -64,6 +74,7 @@ void AsyncLoggingWorker::worker() {
     if (terminal_ &&                 //
         is_log_buffer_empty() &&     //
         is_config_buffer_empty() &&  //
+        is_summary_buffer_empty() &&  //
         is_file_path_buffer_empty())
       break;
     std::this_thread::sleep_for(0.2s);
@@ -82,12 +93,22 @@ void AsyncLoggingWorker::append_log(const object::PyDict& log) {
 
 bool AsyncLoggingWorker::is_config_buffer_empty() {
   std::lock_guard<std::mutex> lock(config_buffer_mutex_);
-  return log_buffer_.empty();
+  return config_buffer_.empty();
 }
 
 void AsyncLoggingWorker::append_config(const object::PyDictItem& config) {
   std::lock_guard<std::mutex> lock(config_buffer_mutex_);
   config_buffer_.emplace_back(config);
+}
+
+bool AsyncLoggingWorker::is_summary_buffer_empty() {
+  std::lock_guard<std::mutex> lock(summary_buffer_mutex_);
+  return summary_buffer_.empty();
+}
+
+void AsyncLoggingWorker::append_summary(const object::PyDictItem& summary) {
+  std::lock_guard<std::mutex> lock(summary_buffer_mutex_);
+  summary_buffer_.emplace_back(summary);
 }
 
 bool AsyncLoggingWorker::is_file_path_buffer_empty() {

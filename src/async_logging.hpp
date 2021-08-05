@@ -22,6 +22,10 @@ class AsyncLoggingWorker {
   std::mutex config_buffer_mutex_;
   std::vector<object::PyDictItem> config_buffer_;
 
+  // summary
+  std::mutex summary_buffer_mutex_;
+  std::vector<object::PyDictItem> summary_buffer_;
+
   // save
   std::mutex file_path_buffer_mutex_;
   std::vector<std::string> file_path_buffer_;
@@ -44,6 +48,9 @@ class AsyncLoggingWorker {
 
   bool is_config_buffer_empty();
   void append_config(const object::PyDictItem& config);
+
+  bool is_summary_buffer_empty();
+  void append_summary(const object::PyDictItem& summary);
 
   bool is_file_path_buffer_empty();
   void append_file_path(const std::string& file_path);

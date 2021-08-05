@@ -41,6 +41,12 @@ template <>
 PyObject* PyBasicType<int>::get_pyobject() const {
   return PyLong_FromLong(value);
 }
+
+template <>
+PyObject* PyBasicType<long>::get_pyobject() const {
+  return PyLong_FromLong(value);
+}
+
 template <>
 PyObject* PyBasicType<bool>::get_pyobject() const {
   return PyBool_FromLong(value);
