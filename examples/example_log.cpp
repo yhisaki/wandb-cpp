@@ -1,7 +1,6 @@
 #include <cmath>
 #include <iostream>
 #include <thread>
-#include <vector>
 
 #include "wandbcpp.hpp"
 
@@ -21,7 +20,9 @@ int main() {
     double t = M_PI * i / N;
     double x = std::sin(M_PI * i / N);
     double y = std::cos(M_PI * i / N);
-    wandbcpp::log({{"t", t}, {"x", x}, {"y", y}});
+    double x_ref = std::sin(M_PI * i / N) + 0.1;
+    double y_ref = std::cos(M_PI * i / N) + 0.1;
+    wandbcpp::log({{"t", t}, {"x", x}, {"y", y}, {"x_ref", x_ref}, {"y_ref", y_ref}});
     std::cout << "i : " << i << std::endl;
     std::this_thread::sleep_for(10.0ms);
   }

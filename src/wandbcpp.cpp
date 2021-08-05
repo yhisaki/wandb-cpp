@@ -55,13 +55,24 @@ void init(std::string project, std::string name,
   logging_worker = std::make_unique<internal::async::AsyncLoggingWorker>();
   logging_worker->initialize_wandb(project, name, tags);
 }
-void log(const PyDict& logs) { logging_worker->append_log(logs); }
+void log(const PyDict& logs) {
+  if (!logging_worker) {
+    logging_worker = std::make_unique<internal::async::AsyncLoggingWorker>();
+  }
+  logging_worker->append_log(logs);
+}
 
 void save(const std::string& file_path) {
+  if (!logging_worker) {
+    logging_worker = std::make_unique<internal::async::AsyncLoggingWorker>();
+  }
   logging_worker->append_file_path(file_path);
 }
 
 void add_config(const std::initializer_list<PyDictItem>& confs) {
+  if (!logging_worker) {
+    logging_worker = std::make_unique<internal::async::AsyncLoggingWorker>();
+  }
   for (const auto& conf : confs) {
     logging_worker->append_config(conf);
   }
