@@ -12,7 +12,7 @@ int main() {
 
   int N = 100;
 
-  wandbcpp::add_config({{"N", N}, {"mode", "minimal"}});
+  wandbcpp::add_config({{"N", N}, {"mode", std::string("minimal")}});
 
   for (int i = 0; i < N; i++) {
     double t = M_PI * i / N;
