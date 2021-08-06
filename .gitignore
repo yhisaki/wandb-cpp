@@ -1,3 +1,4 @@
 build/
 wandb/
+.vscode/settings.json
 tmp/
