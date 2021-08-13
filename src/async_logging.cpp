@@ -17,11 +17,10 @@ AsyncLoggingWorker::~AsyncLoggingWorker() {
 }
 
 void AsyncLoggingWorker::initialize_wandb(
-    const std::string& project, const std::string& name,
-    const std::vector<std::string>& tags) {
+    const wandb::init_args& ia) {
   Py_Initialize();
   wandb_ = new wandb();
-  wandb_->init(project, name, tags);
+  wandb_->init(ia);
   is_initialized = true;
 }
 

@@ -13,7 +13,9 @@ wandb-cpp works by wrapping the [Weight & Biases](https://wandb.ai/site).So, you
 #include "wandbcpp.hpp"
 
 int main() {
-  wandbcpp::init("minimal_example");
+  wandbcpp::init({
+      .project = "example_wandb_cpp",
+  });
 
   int N = 100;
 

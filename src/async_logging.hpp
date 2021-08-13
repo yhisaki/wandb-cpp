@@ -39,8 +39,7 @@ class AsyncLoggingWorker {
   ~AsyncLoggingWorker();
   AsyncLoggingWorker(const AsyncLoggingWorker& other) = delete;
   AsyncLoggingWorker& operator=(const AsyncLoggingWorker& other) = delete;
-  void initialize_wandb(const std::string& project, const std::string& name,
-                        const std::vector<std::string>& tags);
+  void initialize_wandb(const wandb::init_args& ia);
   void worker();
 
   bool is_log_buffer_empty();

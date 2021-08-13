@@ -12,8 +12,7 @@ using namespace internal::util;
 
 wandb::wandb() {}
 
-void wandb::init(const std::string& project, const std::string& name,
-                 const std::vector<std::string>& tags) {
+void wandb::init(const init_args& ia) {
   if (Py_IsInitialized() == 0) {
     throw std::runtime_error("Error Python is not initialized!");
   }
@@ -30,9 +29,10 @@ void wandb::init(const std::string& project, const std::string& name,
     throw std::runtime_error("Error loading wandb.init()!");
   }
 
-  PyDict init_kwargs({{"project", project},
-                      {"name", name},
-                      {"tags", PyList(tags.begin(), tags.end())}});
+  PyDict init_kwargs({{"project", ia.project},
+                      {"name", ia.name},
+                      {"tags", PyList(ia.tags.begin(), ia.tags.end())}});
+  if (!ia.entity.empty()) init_kwargs["entity"] = ia.entity;
   run_ = PyCall(init_, init_kwargs);
 
   log_ = PyObject_GetAttrString(wandb_module_.get(), "log");
@@ -61,11 +61,19 @@ using namespace internal::async;
 
 std::unique_ptr<AsyncLoggingWorker> logging_worker;
 
-void init(std::string project, std::string name,
-          const std::vector<std::string>& tags) {
+// void init(std::string project, std::string entity, std::string name,
+//           const std::vector<std::string>& tags) {
+//   logging_worker = std::make_unique<internal::async::AsyncLoggingWorker>();
+//   wandb::init_args ia{
+//       .project = project, .entity = entity, .name = name, .tags = tags};
+//   logging_worker->initialize_wandb(ia);
+// }
+
+void init(const wandb::init_args& ia) {
   logging_worker = std::make_unique<internal::async::AsyncLoggingWorker>();
-  logging_worker->initialize_wandb(project, name, tags);
+  logging_worker->initialize_wandb(ia);
 }
+
 void log(const PyDict& logs) {
   if (!logging_worker) {
     logging_worker = std::make_unique<internal::async::AsyncLoggingWorker>();

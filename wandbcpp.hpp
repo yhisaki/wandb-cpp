@@ -23,8 +23,14 @@ class wandb {
  public:
   wandb();
 
-  void init(const std::string& project, const std::string& name = "",
-            const std::vector<std::string>& tags = {});
+  struct init_args {
+    std::string project;
+    std::string entity = "";
+    std::string name = "";
+    std::vector<std::string> tags = {};
+  };
+
+  void init(const init_args& ia);
   void log(const internal::object::PyDict& logs);
 
   void save(const std::string& file_path);
@@ -34,8 +40,11 @@ class wandb {
   void add_summary(const internal::object::PyDictItem& summ);
 };
 
-void init(std::string project, std::string name = "",
-          const std::vector<std::string>& tags = {});
+// void init(std::string project, std::string entity = "", std::string name =
+// "",
+//           const std::vector<std::string>& tags = {});
+
+void init(const wandb::init_args& ia);
 
 void log(const internal::object::PyDict& logs);
 

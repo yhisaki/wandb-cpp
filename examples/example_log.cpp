@@ -8,7 +8,9 @@ namespace chrono = std::chrono;
 using namespace std::literals;
 
 int main() {
-  wandbcpp::init("example_wandb_cpp");
+  wandbcpp::init({
+      .project = "example_wandb_cpp"
+  });
 
   int N = 100;
 
