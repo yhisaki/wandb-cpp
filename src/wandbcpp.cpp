@@ -70,7 +70,9 @@ std::unique_ptr<AsyncLoggingWorker> logging_worker;
 // }
 
 void init(const wandb::init_args& ia) {
-  logging_worker = std::make_unique<internal::async::AsyncLoggingWorker>();
+  if (!logging_worker) {
+    logging_worker = std::make_unique<internal::async::AsyncLoggingWorker>();
+  }
   logging_worker->initialize_wandb(ia);
 }
 
