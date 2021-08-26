@@ -3,7 +3,6 @@ enable_language(CXX)
 set(CMAKE_CXX_STANDARD 20) # C++20...
 set(CMAKE_CXX_STANDARD_REQUIRED ON) #...is required...
 set(CMAKE_CXX_EXTENSIONS OFF) #...without compiler extensions like gnu++11
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -O3 -Wall -Wextra -Wno-long-long -pedantic")
 
 option(BUILD_WANDBCPP_EXE OFF)
 
@@ -15,6 +14,9 @@ find_package(Python3 COMPONENTS Development)
 file(GLOB src_files src/*.cpp)
 
 add_library(wandbcpp ${src_files})
+add_library(wandbcpp::wandbcpp ALIAS wandbcpp)
+
+target_compile_options(wandbcpp PRIVATE -O3 -Wall -Wextra -Wno-long-long -pedantic)
 
 target_include_directories(wandbcpp PUBLIC 
   /usr/local/include
