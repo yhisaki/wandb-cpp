@@ -71,6 +71,7 @@ class PyDict : public CastablePyObjectBase {
   PyDict();
   PyDict(const PyDict& other);
   PyDictItem& operator[](std::string key);
+  void update(const PyDict& other);
   void clear();
   bool empty() const;
   PyObject* get_pyobject() const;

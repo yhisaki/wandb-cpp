@@ -72,6 +72,11 @@ PyDict::PyDict(const std::initializer_list<PyDictItem>& items)
     : items_(items.begin(), items.end()) {}
 PyDict::PyDict() = default;
 PyDict::PyDict(const PyDict& other) = default;
+void PyDict::update(const PyDict& other) {
+  items_.reserve(items_.size() + other.items_.size());
+  std::copy(other.items_.begin(), other.items_.end(),
+            std::back_inserter(items_));
+}
 void PyDict::clear() { items_.clear(); }
 bool PyDict::empty() const { return items_.empty(); }
 PyDictItem& PyDict::operator[](std::string key) {

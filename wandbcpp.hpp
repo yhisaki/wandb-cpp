@@ -47,6 +47,8 @@ class wandb {
 // "",
 //           const std::vector<std::string>& tags = {});
 
+using log_dict = internal::object::PyDict;
+
 void init(const wandb::init_args& ia);
 
 void log(const internal::object::PyDict& logs);
