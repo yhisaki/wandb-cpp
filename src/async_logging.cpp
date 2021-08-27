@@ -28,6 +28,7 @@ void AsyncLoggingWorker::worker() {
   while (true) {
     std::this_thread::sleep_for(0.2s);
     if (is_initialized) break;
+    if (terminal_) return;
   }
   while (true) {
     if (!is_log_buffer_empty()) {
