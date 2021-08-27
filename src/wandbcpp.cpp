@@ -2,6 +2,9 @@
 
 #include <Python.h>
 
+#include <fstream>
+#include <optional>
+
 #include "src/async_logging.hpp"
 
 namespace wandbcpp {
@@ -57,57 +60,92 @@ void wandb::add_summary(const internal::object::PyDictItem& summ) {
   PyObject_SetAttrString(summary_.get(), summ.key(), summ_value.get());
 }
 
+wandb::wandb_mode wandb::get_mode() {
+  static std::optional<wandb_mode> mode;
+
+  if (!mode) {
+    std::ifstream ifs("wandb/settings");
+    if (ifs.is_open()) {
+      std::string wandb_settings((std::istreambuf_iterator<char>(ifs)),
+                                 std::istreambuf_iterator<char>());
+      if (wandb_settings.find("mode") == std::string::npos) {
+        mode = wandb_mode::online;
+      } else {
+        if (wandb_settings.find("disabled") != std::string::npos) {
+          mode = wandb_mode::disabled;
+        } else if (wandb_settings.find("offline") != std::string::npos) {
+          mode = wandb_mode::offline;
+        } else {
+          mode = wandb_mode::online;
+        }
+      }
+    } else {
+      mode = wandb_mode::online;
+    }
+  }
+
+  return mode.value();
+}
+
 using namespace internal::async;
 
 std::unique_ptr<AsyncLoggingWorker> logging_worker;
 
-// void init(std::string project, std::string entity, std::string name,
-//           const std::vector<std::string>& tags) {
-//   logging_worker = std::make_unique<internal::async::AsyncLoggingWorker>();
-//   wandb::init_args ia{
-//       .project = project, .entity = entity, .name = name, .tags = tags};
-//   logging_worker->initialize_wandb(ia);
-// }
-
-void init(const wandb::init_args& ia) {
+void preprocessing() {
   if (!logging_worker) {
     logging_worker = std::make_unique<internal::async::AsyncLoggingWorker>();
   }
+}
+
+void init(const wandb::init_args& ia) {
+  if (wandb::get_mode() == wandb::wandb_mode::disabled) {
+    return;
+  }
+  preprocessing();
   logging_worker->initialize_wandb(ia);
 }
 
 void log(const PyDict& logs) {
-  if (!logging_worker) {
-    logging_worker = std::make_unique<internal::async::AsyncLoggingWorker>();
+  if (wandb::get_mode() == wandb::wandb_mode::disabled) {
+    return;
   }
+  preprocessing();
   logging_worker->append_log(logs);
 }
 
 void save(const std::string& file_path) {
-  if (!logging_worker) {
-    logging_worker = std::make_unique<internal::async::AsyncLoggingWorker>();
+  if (wandb::get_mode() == wandb::wandb_mode::disabled) {
+    return;
   }
+  preprocessing();
   logging_worker->append_file_path(file_path);
 }
 
 void add_config(const std::initializer_list<PyDictItem>& confs) {
-  if (!logging_worker) {
-    logging_worker = std::make_unique<internal::async::AsyncLoggingWorker>();
+  if (wandb::get_mode() == wandb::wandb_mode::disabled) {
+    return;
   }
+  preprocessing();
   for (const auto& conf : confs) {
     logging_worker->append_config(conf);
   }
 }
 
 void add_summary(const std::initializer_list<PyDictItem>& summs) {
-  if (!logging_worker) {
-    logging_worker = std::make_unique<internal::async::AsyncLoggingWorker>();
+  if (wandb::get_mode() == wandb::wandb_mode::disabled) {
+    return;
   }
+  preprocessing();
   for (const auto& summ : summs) {
     logging_worker->append_summary(summ);
   }
 }
 
-void finish() { logging_worker.reset(); }
+void finish() {
+  if (wandb::get_mode() == wandb::wandb_mode::disabled) {
+    return;
+  }
+  logging_worker.reset();
+}
 
 }  // namespace wandbcpp

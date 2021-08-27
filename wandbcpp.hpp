@@ -38,6 +38,9 @@ class wandb {
   void add_config(const internal::object::PyDictItem& conf);
 
   void add_summary(const internal::object::PyDictItem& summ);
+
+  enum class wandb_mode { online, offline, disabled };
+  static wandb_mode get_mode();
 };
 
 // void init(std::string project, std::string entity = "", std::string name =
