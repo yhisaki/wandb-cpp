@@ -9,14 +9,14 @@
 
 namespace wandbcpp::internal::object {
 
-struct CastablePyObjectBase {
+struct PyObjectBase {
   virtual PyObject* get_pyobject() const = 0;
-  virtual CastablePyObjectBase* clone() const = 0;
+  virtual PyObjectBase* clone() const = 0;
 };
 
 template <class Derived>
-struct CastablePyObjectBaseClonable : public CastablePyObjectBase {
-  CastablePyObjectBase* clone() const override {
+struct PyObjectBaseClonable : public PyObjectBase {
+  PyObjectBase* clone() const override {
     return new Derived(static_cast<Derived const&>(*this));
   }
 };
@@ -38,7 +38,7 @@ class SharedPyObjectPtr {
 
 template <class ValueType>
 class PyBasicType
-    : public CastablePyObjectBaseClonable<PyBasicType<ValueType>> {
+    : public PyObjectBaseClonable<PyBasicType<ValueType>> {
  private:
   ValueType value;
 
@@ -48,8 +48,8 @@ class PyBasicType
 };
 
 template <class T>
-CastablePyObjectBase* create_castablepybjectbase_ptr(const T& t) {
-  if constexpr (std::is_base_of_v<CastablePyObjectBase, T>) {
+PyObjectBase* create_pybjectbase_ptr(const T& t) {
+  if constexpr (std::is_base_of_v<PyObjectBase, T>) {
     return t.clone();
   } else {
     return new PyBasicType<T>(t);
@@ -58,29 +58,29 @@ CastablePyObjectBase* create_castablepybjectbase_ptr(const T& t) {
 
 class PyDictItem {
   std::string key_;
-  std::shared_ptr<CastablePyObjectBase> value_;
+  std::shared_ptr<PyObjectBase> value_;
 
  public:
   PyDictItem(std::string key);
-  PyDictItem(const std::string& key, const CastablePyObjectBase& value);
+  PyDictItem(const std::string& key, const PyObjectBase& value);
   template <class ValueType>
   PyDictItem(const std::string& key, const ValueType& value)
-      : key_(key), value_(create_castablepybjectbase_ptr(value)) {}
+      : key_(key), value_(create_pybjectbase_ptr(value)) {}
   template <class ValueType>
   explicit PyDictItem(const std::pair<std::string, ValueType>& key_value_pair)
       : key_(key_value_pair.first),
-        value_(create_castablepybjectbase_ptr(key_value_pair.second)) {}
+        value_(create_pybjectbase_ptr(key_value_pair.second)) {}
 
   const char* key() const;
   template <class ValueType>
   PyDictItem& operator=(const ValueType value) {
-    value_.reset(create_castablepybjectbase_ptr(value));
+    value_.reset(create_pybjectbase_ptr(value));
     return *this;
   }
   PyObject* get_pyobject_of_value() const;
 };
 
-class PyDict : public CastablePyObjectBaseClonable<PyDict> {
+class PyDict : public PyObjectBaseClonable<PyDict> {
  private:
   std::vector<PyDictItem> items_;
 
@@ -95,8 +95,8 @@ class PyDict : public CastablePyObjectBaseClonable<PyDict> {
   PyObject* get_pyobject() const;
 };
 
-class PyList : public CastablePyObjectBaseClonable<PyList> {
-  std::vector<std::shared_ptr<CastablePyObjectBase>> items_;
+class PyList : public PyObjectBaseClonable<PyList> {
+  std::vector<std::shared_ptr<PyObjectBase>> items_;
 
  public:
   PyList() {}
@@ -116,13 +116,13 @@ class PyList : public CastablePyObjectBaseClonable<PyList> {
   }
   template <class T>
   void append(const T& v) {
-    items_.emplace_back(create_castablepybjectbase_ptr(v));
+    items_.emplace_back(create_pybjectbase_ptr(v));
   }
   PyObject* get_pyobject() const;
 };
 
-class PyTuple : public CastablePyObjectBaseClonable<PyTuple> {
-  std::vector<std::shared_ptr<CastablePyObjectBase>> items_;
+class PyTuple : public PyObjectBaseClonable<PyTuple> {
+  std::vector<std::shared_ptr<PyObjectBase>> items_;
 
  public:
   PyTuple();
@@ -134,7 +134,7 @@ class PyTuple : public CastablePyObjectBaseClonable<PyTuple> {
 
   template <class T>
   void append(const T& v) {
-    items_.emplace_back(create_castablepybjectbase_ptr(v));
+    items_.emplace_back(create_pybjectbase_ptr(v));
   }
   PyObject* get_pyobject() const;
 };
