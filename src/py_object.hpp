@@ -28,17 +28,18 @@ class SharedPyObjectPtr {
   SharedPyObjectPtr();
   explicit SharedPyObjectPtr(PyObject* ptr);
   SharedPyObjectPtr& operator=(PyObject* ptr);
-  SharedPyObjectPtr& operator=(const SharedPyObjectPtr& ptr);
+  SharedPyObjectPtr& operator=(const SharedPyObjectPtr& src);
   ~SharedPyObjectPtr();
   SharedPyObjectPtr(const SharedPyObjectPtr& src);
+  SharedPyObjectPtr(SharedPyObjectPtr&& src);
+  SharedPyObjectPtr& operator=(SharedPyObjectPtr&& src);
   PyObject* get() const;
-  bool is_null();
+  bool is_null() const;
   PyObject* operator->();
 };
 
 template <class ValueType>
-class PyBasicType
-    : public PyObjectBaseClonable<PyBasicType<ValueType>> {
+class PyBasicType : public PyObjectBaseClonable<PyBasicType<ValueType>> {
  private:
   ValueType value;
 

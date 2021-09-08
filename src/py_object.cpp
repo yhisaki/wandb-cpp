@@ -7,10 +7,12 @@ namespace wandbcpp::internal::object {
 SharedPyObjectPtr::SharedPyObjectPtr() : ptr_(nullptr) {}
 SharedPyObjectPtr::SharedPyObjectPtr(PyObject* ptr) : ptr_(ptr) {}
 SharedPyObjectPtr& SharedPyObjectPtr::operator=(PyObject* ptr) {
+  if (!is_null()) Py_DECREF(ptr_);
   ptr_ = ptr;
   return *this;
 }
 SharedPyObjectPtr& SharedPyObjectPtr::operator=(const SharedPyObjectPtr& src) {
+  if (!is_null()) Py_DECREF(ptr_);
   ptr_ = src.ptr_;
   if (!is_null()) Py_INCREF(ptr_);
   return *this;
@@ -24,8 +26,19 @@ SharedPyObjectPtr::SharedPyObjectPtr(const SharedPyObjectPtr& src)
     : ptr_(src.ptr_) {
   if (!is_null()) Py_INCREF(ptr_);
 }
+SharedPyObjectPtr::SharedPyObjectPtr(SharedPyObjectPtr&& src) {
+  ptr_ = src.ptr_;
+  src.ptr_ = nullptr;
+}
+SharedPyObjectPtr& SharedPyObjectPtr::operator=(SharedPyObjectPtr&& src) {
+  if (!is_null()) Py_DECREF(ptr_);
+  ptr_ = src.ptr_;
+  src.ptr_ = nullptr;
+  return *this;
+}
+
 PyObject* SharedPyObjectPtr::get() const { return ptr_; }
-bool SharedPyObjectPtr::is_null() { return ptr_ == nullptr; }
+bool SharedPyObjectPtr::is_null() const { return ptr_ == nullptr; }
 PyObject* SharedPyObjectPtr::operator->() { return ptr_; }
 
 // PyBasicType
