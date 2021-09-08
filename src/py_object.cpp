@@ -61,9 +61,6 @@ PyObject* PyBasicType<std::string>::get_pyobject() const {
 }
 
 // PyDictItem
-PyDictItem::PyDictItem(const std::string& key,
-                       const CastablePyObjectBase& value)
-    : key_(key), value_(value.clone()) {}
 PyDictItem::PyDictItem(std::string key) : key_(key), value_() {}
 const char* PyDictItem::key() const { return key_.c_str(); }
 PyObject* PyDictItem::get_pyobject_of_value() const {
@@ -93,10 +90,6 @@ PyObject* PyDict::get_pyobject() const {
   }
   return pydict;
 }
-template <>
-PyObject* PyBasicType<PyDict>::get_pyobject() const {
-  return value.get_pyobject();
-}
 
 // PyList
 PyObject* PyList::get_pyobject() const {
@@ -106,11 +99,6 @@ PyObject* PyList::get_pyobject() const {
   }
   return lst;
 }
-template <>
-PyObject* PyBasicType<PyList>::get_pyobject() const {
-  return value.get_pyobject();
-}
-
 // PyTuple
 PyTuple::PyTuple() {}
 PyObject* PyTuple::get_pyobject() const {
@@ -119,9 +107,5 @@ PyObject* PyTuple::get_pyobject() const {
     PyTuple_SetItem(tup, i, items_[i]->get_pyobject());
   }
   return tup;
-}
-template <>
-PyObject* PyBasicType<PyTuple>::get_pyobject() const {
-  return value.get_pyobject();
 }
 }  // namespace wandbcpp::internal::object

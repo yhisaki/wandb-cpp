@@ -47,6 +47,15 @@ class PyBasicType
   PyObject* get_pyobject() const;
 };
 
+template <class T>
+CastablePyObjectBase* create_castablepybjectbase_ptr(const T& t) {
+  if constexpr (std::is_base_of_v<CastablePyObjectBase, T>) {
+    return t.clone();
+  } else {
+    return new PyBasicType<T>(t);
+  }
+}
+
 class PyDictItem {
   std::string key_;
   std::shared_ptr<CastablePyObjectBase> value_;
@@ -56,16 +65,16 @@ class PyDictItem {
   PyDictItem(const std::string& key, const CastablePyObjectBase& value);
   template <class ValueType>
   PyDictItem(const std::string& key, const ValueType& value)
-      : key_(key), value_(new PyBasicType<ValueType>(value)) {}
+      : key_(key), value_(create_castablepybjectbase_ptr(value)) {}
   template <class ValueType>
   explicit PyDictItem(const std::pair<std::string, ValueType>& key_value_pair)
       : key_(key_value_pair.first),
-        value_(new PyBasicType<ValueType>(key_value_pair.second)) {}
+        value_(create_castablepybjectbase_ptr(key_value_pair.second)) {}
 
   const char* key() const;
   template <class ValueType>
   PyDictItem& operator=(const ValueType value) {
-    value_.reset(new PyBasicType<ValueType>(value));
+    value_.reset(create_castablepybjectbase_ptr(value));
     return *this;
   }
   PyObject* get_pyobject_of_value() const;
@@ -107,7 +116,7 @@ class PyList : public CastablePyObjectBaseClonable<PyList> {
   }
   template <class T>
   void append(const T& v) {
-    items_.emplace_back(new PyBasicType<T>(v));
+    items_.emplace_back(create_castablepybjectbase_ptr(v));
   }
   PyObject* get_pyobject() const;
 };
@@ -122,9 +131,10 @@ class PyTuple : public CastablePyObjectBaseClonable<PyTuple> {
     using swallow = int[];
     (void)swallow{(append(items), 0)...};
   }
+
   template <class T>
   void append(const T& v) {
-    items_.emplace_back(new PyBasicType<T>(v));
+    items_.emplace_back(create_castablepybjectbase_ptr(v));
   }
   PyObject* get_pyobject() const;
 };
