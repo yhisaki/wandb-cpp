@@ -61,6 +61,9 @@ PyObject* PyBasicType<std::string>::get_pyobject() const {
 }
 
 // PyDictItem
+PyDictItem::PyDictItem(const std::string& key,
+                       const CastablePyObjectBase& value)
+    : key_(key), value_(value.clone()) {}
 PyDictItem::PyDictItem(std::string key) : key_(key), value_() {}
 const char* PyDictItem::key() const { return key_.c_str(); }
 PyObject* PyDictItem::get_pyobject_of_value() const {

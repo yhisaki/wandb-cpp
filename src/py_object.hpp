@@ -11,6 +11,14 @@ namespace wandbcpp::internal::object {
 
 struct CastablePyObjectBase {
   virtual PyObject* get_pyobject() const = 0;
+  virtual CastablePyObjectBase* clone() const = 0;
+};
+
+template <class Derived>
+struct CastablePyObjectBaseClonable : public CastablePyObjectBase {
+  CastablePyObjectBase* clone() const override {
+    return new Derived(static_cast<Derived const&>(*this));
+  }
 };
 
 class SharedPyObjectPtr {
@@ -29,7 +37,8 @@ class SharedPyObjectPtr {
 };
 
 template <class ValueType>
-class PyBasicType : public CastablePyObjectBase {
+class PyBasicType
+    : public CastablePyObjectBaseClonable<PyBasicType<ValueType>> {
  private:
   ValueType value;
 
@@ -44,10 +53,10 @@ class PyDictItem {
 
  public:
   PyDictItem(std::string key);
+  PyDictItem(const std::string& key, const CastablePyObjectBase& value);
   template <class ValueType>
   PyDictItem(const std::string& key, const ValueType& value)
       : key_(key), value_(new PyBasicType<ValueType>(value)) {}
-
   template <class ValueType>
   explicit PyDictItem(const std::pair<std::string, ValueType>& key_value_pair)
       : key_(key_value_pair.first),
@@ -62,7 +71,7 @@ class PyDictItem {
   PyObject* get_pyobject_of_value() const;
 };
 
-class PyDict : public CastablePyObjectBase {
+class PyDict : public CastablePyObjectBaseClonable<PyDict> {
  private:
   std::vector<PyDictItem> items_;
 
@@ -77,7 +86,7 @@ class PyDict : public CastablePyObjectBase {
   PyObject* get_pyobject() const;
 };
 
-class PyList : public CastablePyObjectBase {
+class PyList : public CastablePyObjectBaseClonable<PyList> {
   std::vector<std::shared_ptr<CastablePyObjectBase>> items_;
 
  public:
@@ -103,7 +112,7 @@ class PyList : public CastablePyObjectBase {
   PyObject* get_pyobject() const;
 };
 
-class PyTuple : public CastablePyObjectBase {
+class PyTuple : public CastablePyObjectBaseClonable<PyTuple> {
   std::vector<std::shared_ptr<CastablePyObjectBase>> items_;
 
  public:
