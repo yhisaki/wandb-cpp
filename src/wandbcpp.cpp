@@ -3,6 +3,7 @@
 #include <Python.h>
 
 #include <fstream>
+#include <iterator>
 #include <optional>
 
 #include "src/async_logging.hpp"
@@ -42,9 +43,12 @@ void wandb::init(const init_args& ia) {
   config_ = PyObject_GetAttrString(wandb_module_.get(), "config");
   summary_ = PyObject_GetAttrString(wandb_module_.get(), "summary");
   save_ = PyObject_GetAttrString(wandb_module_.get(), "save");
+  Table::TablePointer() = PyObject_GetAttrString(wandb_module_.get(), "Table");
 }
 
 void wandb::log(const PyDict& logs) { PyCall(log_, PyTuple(logs)); }
+
+// void wandb::log(PyDict&& logs) { PyCall(log_, PyTuple(logs)); }
 
 void wandb::save(const std::string& file_path) {
   PyCall(save_, PyTuple(file_path));
@@ -71,10 +75,13 @@ wandb::wandb_mode wandb::get_mode() {
       if (wandb_settings.find("mode") == std::string::npos) {
         mode = wandb_mode::online;
       } else {
-        if (wandb_settings.find("disabled") != std::string::npos) {
-          mode = wandb_mode::disabled;
-        } else if (wandb_settings.find("offline") != std::string::npos) {
+        if (wandb_settings.find("mode = online") != std::string::npos) {
+          mode = wandb_mode::online;
+        } else if (wandb_settings.find("mode = offline") != std::string::npos) {
           mode = wandb_mode::offline;
+        } else if (wandb_settings.find("disabled = true") !=
+                   std::string::npos) {
+          mode = wandb_mode::disabled;
         } else {
           mode = wandb_mode::online;
         }
@@ -97,12 +104,13 @@ void preprocessing() {
   }
 }
 
-void init(const wandb::init_args& ia) {
+void init(const wandb::init_args& ia, bool wait_initialized) {
   if (wandb::get_mode() == wandb::wandb_mode::disabled) {
     return;
   }
   preprocessing();
   logging_worker->initialize_wandb(ia);
+  if (wait_initialized) logging_worker->wait_initialized();
 }
 
 void log(const PyDict& logs) {
@@ -113,6 +121,14 @@ void log(const PyDict& logs) {
   logging_worker->append_log(logs);
 }
 
+void log(PyDict&& logs) {
+  if (wandb::get_mode() == wandb::wandb_mode::disabled) {
+    return;
+  }
+  preprocessing();
+  logging_worker->append_log(std::forward<PyDict>(logs));
+}
+
 void save(const std::string& file_path) {
   if (wandb::get_mode() == wandb::wandb_mode::disabled) {
     return;
@@ -121,7 +137,7 @@ void save(const std::string& file_path) {
   logging_worker->append_file_path(file_path);
 }
 
-void add_config(const std::initializer_list<PyDictItem>& confs) {
+void add_config(const std::vector<PyDictItem>& confs) {
   if (wandb::get_mode() == wandb::wandb_mode::disabled) {
     return;
   }
@@ -131,7 +147,17 @@ void add_config(const std::initializer_list<PyDictItem>& confs) {
   }
 }
 
-void add_summary(const std::initializer_list<PyDictItem>& summs) {
+void add_config(std::vector<PyDictItem>&& confs) {
+  if (wandb::get_mode() == wandb::wandb_mode::disabled) {
+    return;
+  }
+  preprocessing();
+  for (auto&& conf : confs) {
+    logging_worker->append_config(std::forward<PyDictItem>(conf));
+  }
+}
+
+void add_summary(const std::vector<PyDictItem>& summs) {
   if (wandb::get_mode() == wandb::wandb_mode::disabled) {
     return;
   }
@@ -141,11 +167,23 @@ void add_summary(const std::initializer_list<PyDictItem>& summs) {
   }
 }
 
+void add_summary(std::vector<PyDictItem>&& summs) {
+  if (wandb::get_mode() == wandb::wandb_mode::disabled) {
+    return;
+  }
+  preprocessing();
+  for (auto&& summ : summs) {
+    logging_worker->append_summary(std::forward<PyDictItem>(summ));
+  }
+}
+
 void finish() {
   if (wandb::get_mode() == wandb::wandb_mode::disabled) {
     return;
   }
-  logging_worker.reset();
+  if (logging_worker) {
+    logging_worker.reset();
+  }
 }
 
 }  // namespace wandbcpp

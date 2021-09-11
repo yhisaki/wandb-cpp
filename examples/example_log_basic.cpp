@@ -8,17 +8,15 @@ int main() {
 
   int N = 100;
 
+  wandbcpp::add_config({{"N", N}, {"mode", "basic"}});
+
   for (int i = 0; i < N; i++) {
-    wandbcpp::log_dict logs;
     double t = M_PI * i / N;
     double x = std::sin(M_PI * i / N);
     double y = std::cos(M_PI * i / N);
-    logs.update({{"t", t}});
-    logs.update({{"x", x}});
-    logs.update({{"y", y}});
-    wandbcpp::log(logs);
+    wandbcpp::log({{"t", t}, {"x", x}, {"y", y}});
+    std::cout << "i : " << i << std::endl;
   }
 
-  wandbcpp::save(__FILE__);
   wandbcpp::finish();
 }

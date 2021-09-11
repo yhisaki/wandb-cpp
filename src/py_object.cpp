@@ -105,6 +105,10 @@ PyObject* PyDict::get_pyobject() const {
 }
 
 // PyList
+size_t PyList::size() const { return items_.size(); }
+
+PyObjectBase& PyList::operator[](size_t i) const { return *items_[i]; }
+
 PyObject* PyList::get_pyobject() const {
   PyObject* lst = PyList_New(items_.size());
   for (uint i = 0; i < items_.size(); i++) {
