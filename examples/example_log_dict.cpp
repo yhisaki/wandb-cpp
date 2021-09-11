@@ -4,7 +4,7 @@
 #include "wandbcpp.hpp"
 
 int main() {
-  wandbcpp::init({.project = "example_wandb_cpp"});
+  wandbcpp::init({.project = "example_wandb_cpp", .tags = {"log_dict"}});
 
   int N = 100;
 

@@ -4,11 +4,11 @@
 #include "wandbcpp.hpp"
 
 int main() {
-  wandbcpp::init({.project = "example_wandb_cpp"});
+  wandbcpp::init({.project = "example_wandb_cpp", .tags = {"basic"}});
 
   int N = 100;
 
-  wandbcpp::add_config({{"N", N}, {"mode", "basic"}});
+  wandbcpp::add_config({{"N", N}, {"mode", "abc"}});
 
   for (int i = 0; i < N; i++) {
     double t = M_PI * i / N;
