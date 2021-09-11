@@ -30,6 +30,9 @@ void Table::add_data(internal::object::PyList&& l) {
 
 void Table::add_column(std::string name, const internal::object::PyList& l) {
   columns_.append(name);
+  if (data_.size() != l.size()) {
+    data_.resize(l.size());
+  }
   for (size_t i = 0; i < l.size(); i++) {
     data_[i].append(l[i]);
   }

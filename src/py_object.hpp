@@ -52,7 +52,8 @@ class PyBasicType : public PyObjectBaseClonable<PyBasicType<ValueType>> {
 
 template <class T>
 PyObjectBase* create_pybjectbase_ptr(const T& t) {
-  if constexpr (std::is_base_of_v<PyObjectBase, T>) {
+  if constexpr (std::is_base_of_v<PyObjectBase, T> ||
+                std::is_same_v<PyObjectBase, T>) {
     return t.clone();
   } else {
     return new PyBasicType<T>(t);
@@ -133,7 +134,9 @@ class PyList : public PyObjectBaseClonable<PyList> {
 
   size_t size() const;
 
-  PyObjectBase& operator[](size_t i) const;
+  const PyObjectBase& operator[](size_t i) const;
+
+  PyObjectBase& operator[](size_t i);
 
   PyObject* get_pyobject() const override;
 };
