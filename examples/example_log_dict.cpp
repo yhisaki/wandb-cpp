@@ -20,4 +20,5 @@ int main() {
   }
 
   wandbcpp::save(__FILE__);
+  wandbcpp::finish();
 }

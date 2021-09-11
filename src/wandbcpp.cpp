@@ -43,6 +43,7 @@ void wandb::init(const init_args& ia) {
   config_ = PyObject_GetAttrString(wandb_module_.get(), "config");
   summary_ = PyObject_GetAttrString(wandb_module_.get(), "summary");
   save_ = PyObject_GetAttrString(wandb_module_.get(), "save");
+  Table::TablePointer() = PyObject_GetAttrString(wandb_module_.get(), "Table");
 }
 
 void wandb::log(const PyDict& logs) { PyCall(log_, PyTuple(logs)); }
@@ -74,10 +75,13 @@ wandb::wandb_mode wandb::get_mode() {
       if (wandb_settings.find("mode") == std::string::npos) {
         mode = wandb_mode::online;
       } else {
-        if (wandb_settings.find("disabled") != std::string::npos) {
-          mode = wandb_mode::disabled;
-        } else if (wandb_settings.find("offline") != std::string::npos) {
+        if (wandb_settings.find("mode = online") != std::string::npos) {
+          mode = wandb_mode::online;
+        } else if (wandb_settings.find("mode = offline") != std::string::npos) {
           mode = wandb_mode::offline;
+        } else if (wandb_settings.find("disabled = true") !=
+                   std::string::npos) {
+          mode = wandb_mode::disabled;
         } else {
           mode = wandb_mode::online;
         }
@@ -178,7 +182,7 @@ void finish() {
     return;
   }
   if (logging_worker) {
-  logging_worker.reset();
+    logging_worker.reset();
   }
 }
 
