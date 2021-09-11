@@ -3,6 +3,8 @@
 
 #include <Python.h>
 
+#include <algorithm>
+#include <iterator>
 #include <memory>
 #include <utility>
 #include <vector>
@@ -45,7 +47,7 @@ class PyBasicType : public PyObjectBaseClonable<PyBasicType<ValueType>> {
 
  public:
   PyBasicType(const ValueType& value) : value(value) {}
-  PyObject* get_pyobject() const;
+  PyObject* get_pyobject() const override;
 };
 
 template <class T>
@@ -56,6 +58,16 @@ PyObjectBase* create_pybjectbase_ptr(const T& t) {
     return new PyBasicType<T>(t);
   }
 }
+
+template <size_t N>
+class PyBasicType<char[N]> : public PyObjectBaseClonable<PyBasicType<char[N]>> {
+ private:
+  PyBasicType<std::string> str;
+
+ public:
+  PyBasicType(const char (&arr)[N]) : str(arr) {}
+  PyObject* get_pyobject() const override { return str.get_pyobject(); }
+};
 
 class PyDictItem {
   std::string key_;
@@ -93,23 +105,22 @@ class PyDict : public PyObjectBaseClonable<PyDict> {
   void update(const PyDict& other);
   void clear();
   bool empty() const;
-  PyObject* get_pyobject() const;
+  PyObject* get_pyobject() const override;
 };
 
 class PyList : public PyObjectBaseClonable<PyList> {
+ public:
   std::vector<std::shared_ptr<PyObjectBase>> items_;
 
- public:
   PyList() {}
 
-  template <class T>
-  PyList(std::initializer_list<T> items) {
-    items_.reserve(items.size());
-    for (auto& e : items) {
-      append(e);
-    }
+  template <class... Items>
+  PyList(const Items&... items) {
+    using swallow = int[];
+    (void)swallow{(append(items), 0)...};
   }
-  template <class InputIterator>
+
+  template <std::input_iterator InputIterator>
   PyList(InputIterator first, InputIterator last) {
     for (InputIterator it = first; it != last; it++) {
       append(*it);
@@ -119,7 +130,12 @@ class PyList : public PyObjectBaseClonable<PyList> {
   void append(const T& v) {
     items_.emplace_back(create_pybjectbase_ptr(v));
   }
-  PyObject* get_pyobject() const;
+
+  size_t size() const;
+
+  PyObjectBase& operator[](size_t i) const;
+
+  PyObject* get_pyobject() const override;
 };
 
 class PyTuple : public PyObjectBaseClonable<PyTuple> {
@@ -137,7 +153,7 @@ class PyTuple : public PyObjectBaseClonable<PyTuple> {
   void append(const T& v) {
     items_.emplace_back(create_pybjectbase_ptr(v));
   }
-  PyObject* get_pyobject() const;
+  PyObject* get_pyobject() const override;
 };
 }  // namespace wandbcpp::internal::object
 

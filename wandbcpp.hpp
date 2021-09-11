@@ -8,6 +8,7 @@
 
 #include "src/py_object.hpp"
 #include "src/py_util.hpp"
+#include "src/wandb_object.hpp"
 
 namespace wandbcpp {
 
@@ -31,7 +32,10 @@ class wandb {
   };
 
   void init(const init_args& ia);
+
   void log(const internal::object::PyDict& logs);
+
+  // void log(internal::object::PyDict&& logs);
 
   void save(const std::string& file_path);
 
@@ -49,17 +53,23 @@ class wandb {
 
 using log_dict = internal::object::PyDict;
 
-void init(const wandb::init_args& ia);
+void init(const wandb::init_args& ia, bool wait_initialized = true);
 
 void log(const internal::object::PyDict& logs);
 
+void log(internal::object::PyDict&& logs);
+
 void save(const std::string& file_path);
 
-void add_config(
-    const std::initializer_list<internal::object::PyDictItem>& confs);
+void add_config(const std::vector<internal::object::PyDictItem>& confs);
 
-void add_summary(
-    const std::initializer_list<internal::object::PyDictItem>& summs);
+void add_config(std::vector<internal::object::PyDictItem>&& confs);
+
+void add_summary(const std::vector<internal::object::PyDictItem>& summs);
+
+void add_summary(std::vector<internal::object::PyDictItem>&& summs);
+
+void finish();
 
 }  // namespace wandbcpp
 
