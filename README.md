@@ -103,8 +103,6 @@ int main() {
   ```cpp
   #include "wandbcpp.hpp"
 
-  using namespace std::literals;
-
   int main() {
     wandbcpp::init({.project = "example_wandb_cpp", .tags = {"table"}});
     int I = 10;
