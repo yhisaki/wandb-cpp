@@ -8,8 +8,27 @@
 #include <memory>
 #include <utility>
 #include <vector>
+#if __GNUC__ < 10
+#include <type_traits>
+#endif
 
 namespace wandbcpp::internal::object {
+
+#if __GNUC__ < 10
+
+template <typename T, typename = void>
+struct is_iterator {
+  static constexpr bool value = false;
+};
+
+template <typename T>
+struct is_iterator<
+    T, typename std::enable_if<!std::is_same<
+           typename std::iterator_traits<T>::value_type, void>::value>::type> {
+  static constexpr bool value = true;
+};
+
+#endif
 
 struct PyObjectBase {
   virtual PyObject* get_pyobject() const = 0;
@@ -120,13 +139,21 @@ class PyList : public PyObjectBaseClonable<PyList> {
     using swallow = int[];
     (void)swallow{(append(items), 0)...};
   }
-
+#if __GNUC__ < 10
+  template <class InputIterator, typename = is_iterator<InputIterator>::type>
+  PyList(InputIterator first, InputIterator last) {
+    for (InputIterator it = first; it != last; it++) {
+      append(*it);
+    }
+  }
+#else
   template <std::input_iterator InputIterator>
   PyList(InputIterator first, InputIterator last) {
     for (InputIterator it = first; it != last; it++) {
       append(*it);
     }
   }
+#endif
   template <class T>
   void append(const T& v) {
     items_.emplace_back(create_pybjectbase_ptr(v));
