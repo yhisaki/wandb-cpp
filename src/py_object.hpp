@@ -134,18 +134,26 @@ class PyList : public PyObjectBaseClonable<PyList> {
 
   PyList() {}
 
-  template <class... Items>
-  PyList(const Items&... items) {
+#if __GNUC__ < 10
+  template <class I>
+  PyList(I first, I last) {
+    if constexpr (is_iterator<I>::value) {
+      for (I it = first; it != last; it++) {
+        append(*it);
+      }
+    } else {
+      append(first);
+      append(last);
+    }
+  }
+  template <class Head, class... Items>
+  PyList(const Head& head, const Items&... items) {
+    static_assert(!is_iterator<Head>::value);
+    append(head);
     using swallow = int[];
     (void)swallow{(append(items), 0)...};
   }
-#if __GNUC__ < 10
-  template <class InputIterator, typename = is_iterator<InputIterator>::type>
-  PyList(InputIterator first, InputIterator last) {
-    for (InputIterator it = first; it != last; it++) {
-      append(*it);
-    }
-  }
+
 #else
   template <std::input_iterator InputIterator>
   PyList(InputIterator first, InputIterator last) {
@@ -153,7 +161,13 @@ class PyList : public PyObjectBaseClonable<PyList> {
       append(*it);
     }
   }
+  template <class... Items>
+  PyList(const Items&... items) {
+    using swallow = int[];
+    (void)swallow{(append(items), 0)...};
+  }
 #endif
+
   template <class T>
   void append(const T& v) {
     items_.emplace_back(create_pybjectbase_ptr(v));
