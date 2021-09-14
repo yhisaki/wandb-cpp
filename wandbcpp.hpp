@@ -53,6 +53,9 @@ class wandb {
 
 using log_dict = internal::object::PyDict;
 
+using py_list = internal::object::PyList;
+using py_dict = internal::object::PyDict;
+
 void init(const wandb::init_args& ia, bool wait_initialized = true);
 
 void log(const internal::object::PyDict& logs);
