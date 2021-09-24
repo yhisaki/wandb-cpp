@@ -9,6 +9,8 @@
 #include "src/py_object.hpp"
 #include "src/py_util.hpp"
 #include "src/wandb_object.hpp"
+#include "src/utils.hpp"
+
 
 namespace wandbcpp {
 
