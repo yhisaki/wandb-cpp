@@ -47,4 +47,29 @@ PyObject* Table::get_pyobject() const {
   return PyObject_Call(TablePointer().get(), args.get(), kwargs.get());
 }
 
+
+internal::object::SharedPyObjectPtr& Object3D::Object3DPointer() {
+  static internal::object::SharedPyObjectPtr object3d_;
+  return object3d_;
+}
+
+Object3D::Object3D(const internal::object::PyDict& dict)
+    : dict_(dict), arr_(std::nullopt) {}
+
+Object3D::Object3D(const numpy::ndarray& arr)
+    : dict_(std::nullopt), arr_(arr) {}
+
+PyObject* Object3D::get_pyobject() const {
+  if (dict_) {
+    SharedPyObjectPtr args(PyTuple(dict_.value()).get_pyobject());
+    SharedPyObjectPtr kwargs(PyDict().get_pyobject());
+    return PyObject_Call(Object3DPointer().get(), args.get(), kwargs.get());
+  } else if (arr_) {
+    SharedPyObjectPtr args(PyTuple(arr_.value()).get_pyobject());
+    SharedPyObjectPtr kwargs(PyDict().get_pyobject());
+    return PyObject_Call(Object3DPointer().get(), args.get(), kwargs.get());
+  }
+  return nullptr;
+}
+
 }  // namespace wandbcpp

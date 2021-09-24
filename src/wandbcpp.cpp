@@ -7,6 +7,9 @@
 #include <optional>
 
 #include "src/async_logging.hpp"
+#define PY_ARRAY_UNIQUE_SYMBOL cool_ARRAY_API
+#define NPY_NO_DEPRECATED_API NPY_1_7_API_VERSION
+#include "numpy/arrayobject.h"
 
 namespace wandbcpp {
 using namespace std::literals;
@@ -22,6 +25,10 @@ void wandb::init(const init_args& ia) {
   }
 
   wandb_module_ = PyImport_ImportModule("wandb");
+  int i = _import_array();
+  if (i < 0) {
+    throw std::runtime_error("import numpy failed");
+  }
 
   if (wandb_module_.is_null()) {
     PyErr_Print();
@@ -43,7 +50,10 @@ void wandb::init(const init_args& ia) {
   config_ = PyObject_GetAttrString(wandb_module_.get(), "config");
   summary_ = PyObject_GetAttrString(wandb_module_.get(), "summary");
   save_ = PyObject_GetAttrString(wandb_module_.get(), "save");
+  finish_ = PyObject_GetAttrString(wandb_module_.get(), "finish");
   Table::TablePointer() = PyObject_GetAttrString(wandb_module_.get(), "Table");
+  Object3D::Object3DPointer() =
+      PyObject_GetAttrString(wandb_module_.get(), "Object3D");
 }
 
 void wandb::log(const PyDict& logs) { PyCall(log_, PyTuple(logs)); }
@@ -63,6 +73,8 @@ void wandb::add_summary(const internal::object::PyDictItem& summ) {
   internal::object::SharedPyObjectPtr summ_value(summ.get_pyobject_of_value());
   PyObject_SetAttrString(summary_.get(), summ.key(), summ_value.get());
 }
+
+void wandb::finish() { PyCall(finish_); }
 
 wandb::wandb_mode wandb::get_mode() {
   static std::optional<wandb_mode> mode;

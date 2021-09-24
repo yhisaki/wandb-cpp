@@ -41,6 +41,20 @@ PyObject* SharedPyObjectPtr::get() const { return ptr_; }
 bool SharedPyObjectPtr::is_null() const { return ptr_ == nullptr; }
 PyObject* SharedPyObjectPtr::operator->() { return ptr_; }
 
+std::ostream& operator<<(std::ostream& os, const PyObjectBase& obj) {
+  if (Py_IsInitialized() == 0) {
+    throw std::runtime_error("Python Interpreter is not initialized!");
+  } else {
+    SharedPyObjectPtr ptr(obj.get_pyobject());
+    SharedPyObjectPtr repr(PyObject_Repr(ptr.get()));
+    SharedPyObjectPtr str_ptr(
+        PyUnicode_AsEncodedString(repr.get(), "utf-8", "~E~"));
+    const char* bytes = PyBytes_AsString(str_ptr.get());
+    os << bytes;
+  }
+  return os;
+}
+
 // PyBasicType
 template <>
 PyObject* PyBasicType<double>::get_pyobject() const {

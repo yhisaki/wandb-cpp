@@ -4,8 +4,10 @@
 #include <Python.h>
 
 #include <algorithm>
+#include <iostream>
 #include <iterator>
 #include <memory>
+#include <type_traits>
 #include <utility>
 #include <vector>
 #if __GNUC__ < 10
@@ -58,6 +60,8 @@ class SharedPyObjectPtr {
   bool is_null() const;
   PyObject* operator->();
 };
+
+std::ostream& operator<<(std::ostream& os, const PyObjectBase& obj);
 
 template <class ValueType>
 class PyBasicType : public PyObjectBaseClonable<PyBasicType<ValueType>> {

@@ -20,7 +20,7 @@ class wandb {
   internal::object::SharedPyObjectPtr config_;
   internal::object::SharedPyObjectPtr summary_;
   internal::object::SharedPyObjectPtr save_;
-
+  internal::object::SharedPyObjectPtr finish_;
  public:
   wandb();
 
@@ -43,6 +43,8 @@ class wandb {
 
   void add_summary(const internal::object::PyDictItem& summ);
 
+  void finish();
+
   enum class wandb_mode { online, offline, disabled };
   static wandb_mode get_mode();
 };
@@ -52,6 +54,9 @@ class wandb {
 //           const std::vector<std::string>& tags = {});
 
 using log_dict = internal::object::PyDict;
+
+using py_list = internal::object::PyList;
+using py_dict = internal::object::PyDict;
 
 void init(const wandb::init_args& ia, bool wait_initialized = true);
 
