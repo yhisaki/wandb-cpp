@@ -20,7 +20,7 @@ class wandb {
   internal::object::SharedPyObjectPtr config_;
   internal::object::SharedPyObjectPtr summary_;
   internal::object::SharedPyObjectPtr save_;
-
+  internal::object::SharedPyObjectPtr finish_;
  public:
   wandb();
 
@@ -42,6 +42,8 @@ class wandb {
   void add_config(const internal::object::PyDictItem& conf);
 
   void add_summary(const internal::object::PyDictItem& summ);
+
+  void finish();
 
   enum class wandb_mode { online, offline, disabled };
   static wandb_mode get_mode();

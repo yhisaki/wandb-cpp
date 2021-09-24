@@ -4,6 +4,7 @@
 
 wandb-cpp works by wrapping the [Weight & Biases](https://wandb.ai/site).So, you need to install wandb according to [this procedure](https://docs.wandb.ai/quickstart) first.
 
+The required Python packages are listed in the requirements.txt file.
 
 ## Usage
 

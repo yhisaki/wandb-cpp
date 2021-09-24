@@ -50,6 +50,7 @@ void wandb::init(const init_args& ia) {
   config_ = PyObject_GetAttrString(wandb_module_.get(), "config");
   summary_ = PyObject_GetAttrString(wandb_module_.get(), "summary");
   save_ = PyObject_GetAttrString(wandb_module_.get(), "save");
+  finish_ = PyObject_GetAttrString(wandb_module_.get(), "finish");
   Table::TablePointer() = PyObject_GetAttrString(wandb_module_.get(), "Table");
   Object3D::Object3DPointer() =
       PyObject_GetAttrString(wandb_module_.get(), "Object3D");
@@ -72,6 +73,8 @@ void wandb::add_summary(const internal::object::PyDictItem& summ) {
   internal::object::SharedPyObjectPtr summ_value(summ.get_pyobject_of_value());
   PyObject_SetAttrString(summary_.get(), summ.key(), summ_value.get());
 }
+
+void wandb::finish() { PyCall(finish_); }
 
 wandb::wandb_mode wandb::get_mode() {
   static std::optional<wandb_mode> mode;

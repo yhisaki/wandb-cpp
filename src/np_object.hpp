@@ -12,6 +12,8 @@ namespace numpy {
 
 enum class dtype : std::underlying_type_t<NPY_TYPES> {
   np_notype = NPY_NOTYPE,
+  np_short = NPY_SHORT,
+  np_int = NPY_INT,
   np_double = NPY_DOUBLE,
   np_float = NPY_FLOAT,
   np_object = NPY_OBJECT
@@ -28,10 +30,7 @@ class ndarray : public internal::object::PyObjectBaseClonable<ndarray> {
   PyObject* get_pyobject() const override;
 };
 
-// <std::inte> ndarray array()
-
 }  // namespace numpy
 
 }  // namespace wandbcpp
-// #undef PY_ARRAY_UNIQUE_SYMBOL
 #endif
