@@ -1,7 +1,6 @@
 #include <array>
 #include <random>
 
-#include "src/utils.hpp"
 #include "wandbcpp.hpp"
 
 std::array<double, 3> gen_random_point() {
@@ -13,20 +12,20 @@ std::array<double, 3> gen_random_point() {
 
 int main(int argc, char const* argv[]) {
   namespace np = wandbcpp::numpy;
-  
-  wandbcpp::init({.project = "test_object3d"});
-  
+
+  wandbcpp::init({.project = "example_wandb_cpp", .tags = {"object3d"}});
+
   int num_points = 300;
-  
+
   std::vector<std::array<double, 3>> point_cloud(num_points);
-  
+
   std::generate(point_cloud.begin(), point_cloud.end(), &gen_random_point);
-  
+
   auto lst = wandbcpp::topylist(point_cloud.begin(), point_cloud.end());
-  
+
   wandbcpp::log({{"obj3d", wandbcpp::Object3D{np::ndarray{lst}}}});
-  
+
   wandbcpp::finish();
-  
+
   return 0;
 }

@@ -14,7 +14,8 @@ std::array<double, 3> gen_random_point() {
 int main(int argc, char const* argv[]) {
   namespace np = wandbcpp::numpy;
 
-  wandbcpp::init({.project = "test_object3d"});
+  wandbcpp::init(
+      {.project = "example_wandb_cpp", .tags = {"object3d", "lidar"}});
 
   int num_points = 300;
 
