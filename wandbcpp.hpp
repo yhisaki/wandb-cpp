@@ -8,9 +8,8 @@
 
 #include "src/py_object.hpp"
 #include "src/py_util.hpp"
-#include "src/wandb_object.hpp"
 #include "src/utils.hpp"
-
+#include "src/wandb_object.hpp"
 
 namespace wandbcpp {
 
@@ -23,6 +22,7 @@ class wandb {
   internal::object::SharedPyObjectPtr summary_;
   internal::object::SharedPyObjectPtr save_;
   internal::object::SharedPyObjectPtr finish_;
+
  public:
   wandb();
 
@@ -31,6 +31,7 @@ class wandb {
     std::string entity = "";
     std::string name = "";
     std::vector<std::string> tags = {};
+    std::string group = "";
   };
 
   void init(const init_args& ia);

@@ -4,7 +4,8 @@
 #include "wandbcpp.hpp"
 
 int main() {
-  wandbcpp::init({.project = "example_wandb_cpp", .tags = {"basic"}});
+  wandbcpp::init(
+      {.project = "example_wandb_cpp", .tags = {"basic"}, .group = "abc"});
 
   int N = 100;
 

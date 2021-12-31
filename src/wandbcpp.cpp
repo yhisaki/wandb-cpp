@@ -44,6 +44,7 @@ void wandb::init(const init_args& ia) {
                       {"name", ia.name},
                       {"tags", PyList(ia.tags.begin(), ia.tags.end())}});
   if (!ia.entity.empty()) init_kwargs["entity"] = ia.entity;
+  if (!ia.group.empty()) init_kwargs["group"] = ia.group;
   run_ = PyCall(init_, init_kwargs);
 
   log_ = PyObject_GetAttrString(wandb_module_.get(), "log");
