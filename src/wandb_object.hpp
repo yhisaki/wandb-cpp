@@ -1,11 +1,13 @@
 #ifndef WANDB_OBJECT_HPP_
 #define WANDB_OBJECT_HPP_
+#include <optional>
 #include <string>
 #include <vector>
 
 #include "src/np_object.hpp"
 #include "src/py_object.hpp"
 #include "wandbcpp.hpp"
+
 namespace wandbcpp {
 
 class Table : public internal::object::PyObjectBaseClonable<Table> {
