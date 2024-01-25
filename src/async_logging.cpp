@@ -12,7 +12,6 @@ AsyncLoggingWorker::AsyncLoggingWorker()
 AsyncLoggingWorker::~AsyncLoggingWorker() {
   finish();
   logging_worker_thread.join();
-  Py_Finalize();
 }
 
 void AsyncLoggingWorker::initialize_wandb(const wandb::init_args& ia) {
@@ -58,6 +57,7 @@ void AsyncLoggingWorker::worker() {
     if (terminal_ && is_buffers_empty()) {
       wandb_->finish();
       delete wandb_;
+      Py_Finalize();
       return;
     }
     if (!is_log_buffer_empty()) {
