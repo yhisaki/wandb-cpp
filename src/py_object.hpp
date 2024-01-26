@@ -10,27 +10,8 @@
 #include <type_traits>
 #include <utility>
 #include <vector>
-#if __GNUC__ < 10
-#include <type_traits>
-#endif
 
 namespace wandbcpp::internal::object {
-
-#if __GNUC__ < 10
-
-template <typename T, typename = void>
-struct is_iterator {
-  static constexpr bool value = false;
-};
-
-template <typename T>
-struct is_iterator<
-    T, typename std::enable_if<!std::is_same<
-           typename std::iterator_traits<T>::value_type, void>::value>::type> {
-  static constexpr bool value = true;
-};
-
-#endif
 
 struct PyObjectBase {
   virtual PyObject* get_pyobject() const = 0;
@@ -138,27 +119,6 @@ class PyList : public PyObjectBaseClonable<PyList> {
 
   PyList() {}
 
-#if __GNUC__ < 10
-  template <class I>
-  PyList(I first, I last) {
-    if constexpr (is_iterator<I>::value) {
-      for (I it = first; it != last; it++) {
-        append(*it);
-      }
-    } else {
-      append(first);
-      append(last);
-    }
-  }
-  template <class Head, class... Items>
-  PyList(const Head& head, const Items&... items) {
-    static_assert(!is_iterator<Head>::value);
-    append(head);
-    using swallow = int[];
-    (void)swallow{(append(items), 0)...};
-  }
-
-#else
   template <std::input_iterator InputIterator>
   PyList(InputIterator first, InputIterator last) {
     for (InputIterator it = first; it != last; it++) {
@@ -170,7 +130,6 @@ class PyList : public PyObjectBaseClonable<PyList> {
     using swallow = int[];
     (void)swallow{(append(items), 0)...};
   }
-#endif
 
   template <class T>
   void append(const T& v) {
@@ -205,4 +164,4 @@ class PyTuple : public PyObjectBaseClonable<PyTuple> {
 };
 }  // namespace wandbcpp::internal::object
 
-#endif
+#endif  // WANDBCPP_PY_OBJECTS_HPP_
