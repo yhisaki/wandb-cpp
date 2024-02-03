@@ -49,7 +49,10 @@ void wandb::init(const init_args& ia) {
 
   log_ = PyObject_GetAttrString(wandb_module_.get(), "log");
   config_ = PyObject_GetAttrString(wandb_module_.get(), "config");
+  config_update_ = PyObject_GetAttrString(config_.get(), "update");
   summary_ = PyObject_GetAttrString(wandb_module_.get(), "summary");
+  summary_update_ = PyObject_GetAttrString(summary_.get(), "update");
+
   save_ = PyObject_GetAttrString(wandb_module_.get(), "save");
   finish_ = PyObject_GetAttrString(wandb_module_.get(), "finish");
   Table::TablePointer() = PyObject_GetAttrString(wandb_module_.get(), "Table");
@@ -59,20 +62,16 @@ void wandb::init(const init_args& ia) {
 
 void wandb::log(const PyDict& logs) { PyCall(log_, PyTuple(logs)); }
 
-// void wandb::log(PyDict&& logs) { PyCall(log_, PyTuple(logs)); }
-
 void wandb::save(const std::string& file_path) {
   PyCall(save_, PyTuple(file_path));
 }
 
-void wandb::add_config(const internal::object::PyDictItem& conf) {
-  internal::object::SharedPyObjectPtr conf_value(conf.get_pyobject_of_value());
-  PyObject_SetAttrString(config_.get(), conf.key(), conf_value.get());
+void wandb::update_config(const internal::object::PyDict& conf) {
+  PyCall(config_update_, PyTuple(conf));
 }
 
-void wandb::add_summary(const internal::object::PyDictItem& summ) {
-  internal::object::SharedPyObjectPtr summ_value(summ.get_pyobject_of_value());
-  PyObject_SetAttrString(summary_.get(), summ.key(), summ_value.get());
+void wandb::update_summary(const internal::object::PyDict& summ) {
+  PyCall(summary_update_, PyTuple(summ));
 }
 
 void wandb::finish() { PyCall(finish_); }
@@ -150,44 +149,36 @@ void save(const std::string& file_path) {
   logging_worker->append_file_path(file_path);
 }
 
-void add_config(const std::vector<PyDictItem>& confs) {
+void update_config(const PyDict& conf) {
   if (wandb::get_mode() == wandb::wandb_mode::disabled) {
     return;
   }
   preprocessing();
-  for (const auto& conf : confs) {
-    logging_worker->append_config(conf);
-  }
+  logging_worker->append_config(conf);
 }
 
-void add_config(std::vector<PyDictItem>&& confs) {
+void update_config(PyDict&& confs) {
   if (wandb::get_mode() == wandb::wandb_mode::disabled) {
     return;
   }
   preprocessing();
-  for (auto&& conf : confs) {
-    logging_worker->append_config(std::forward<PyDictItem>(conf));
-  }
+  logging_worker->append_config(std::forward<PyDict>(confs));
 }
 
-void add_summary(const std::vector<PyDictItem>& summs) {
+void update_summary(const PyDict& summs) {
   if (wandb::get_mode() == wandb::wandb_mode::disabled) {
     return;
   }
   preprocessing();
-  for (const auto& summ : summs) {
-    logging_worker->append_summary(summ);
-  }
+  logging_worker->append_summary(summs);
 }
 
-void add_summary(std::vector<PyDictItem>&& summs) {
+void update_summary(PyDict&& summs) {
   if (wandb::get_mode() == wandb::wandb_mode::disabled) {
     return;
   }
   preprocessing();
-  for (auto&& summ : summs) {
-    logging_worker->append_summary(std::forward<PyDictItem>(summ));
-  }
+  logging_worker->append_summary(std::forward<PyDict>(summs));
 }
 
 void finish() {

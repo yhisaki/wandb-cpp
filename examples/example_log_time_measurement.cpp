@@ -13,7 +13,7 @@ int main() {
 
   int N = 100;
 
-  wandbcpp::add_config({{"N", N}});
+  wandbcpp::update_config({{"N", N}});
 
   auto begin = chrono::high_resolution_clock::now();
 
@@ -30,7 +30,7 @@ int main() {
       chrono::duration_cast<chrono::microseconds>(end - begin).count() /
       static_cast<double>(N);
 
-  wandbcpp::add_summary(
+  wandbcpp::update_summary(
       {{"elapsed_time_us per step", elapsed_time_us_per_step}});
   wandbcpp::finish();
 }

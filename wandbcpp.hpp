@@ -14,14 +14,17 @@
 namespace wandbcpp {
 
 class wandb {
-  internal::object::SharedPyObjectPtr wandb_module_;
-  internal::object::SharedPyObjectPtr run_;
-  internal::object::SharedPyObjectPtr init_;
-  internal::object::SharedPyObjectPtr log_;
-  internal::object::SharedPyObjectPtr config_;
-  internal::object::SharedPyObjectPtr summary_;
-  internal::object::SharedPyObjectPtr save_;
-  internal::object::SharedPyObjectPtr finish_;
+  internal::object::SharedPyObjectPtr wandb_module_;   // wandb module
+  internal::object::SharedPyObjectPtr run_;            // run object
+  internal::object::SharedPyObjectPtr init_;           // init function
+  internal::object::SharedPyObjectPtr log_;            // log function
+  internal::object::SharedPyObjectPtr config_;         // config object
+  internal::object::SharedPyObjectPtr config_update_;  // config.update function
+  internal::object::SharedPyObjectPtr summary_;        // summary object
+  internal::object::SharedPyObjectPtr
+      summary_update_;                          // summary.update function
+  internal::object::SharedPyObjectPtr save_;    // save function
+  internal::object::SharedPyObjectPtr finish_;  // finish function
 
  public:
   wandb();
@@ -42,9 +45,9 @@ class wandb {
 
   void save(const std::string& file_path);
 
-  void add_config(const internal::object::PyDictItem& conf);
+  void update_config(const internal::object::PyDict& conf);
 
-  void add_summary(const internal::object::PyDictItem& summ);
+  void update_summary(const internal::object::PyDict& summ);
 
   void finish();
 
@@ -52,12 +55,7 @@ class wandb {
   static wandb_mode get_mode();
 };
 
-// void init(std::string project, std::string entity = "", std::string name =
-// "",
-//           const std::vector<std::string>& tags = {});
-
 using log_dict = internal::object::PyDict;
-
 using py_list = internal::object::PyList;
 using py_dict = internal::object::PyDict;
 
@@ -69,13 +67,13 @@ void log(internal::object::PyDict&& logs);
 
 void save(const std::string& file_path);
 
-void add_config(const std::vector<internal::object::PyDictItem>& confs);
+void update_config(const internal::object::PyDict& confs);
 
-void add_config(std::vector<internal::object::PyDictItem>&& confs);
+void update_config(internal::object::PyDict&& confs);
 
-void add_summary(const std::vector<internal::object::PyDictItem>& summs);
+void update_summary(const internal::object::PyDict& summs);
 
-void add_summary(std::vector<internal::object::PyDictItem>&& summs);
+void update_summary(internal::object::PyDict&& summs);
 
 void finish();
 

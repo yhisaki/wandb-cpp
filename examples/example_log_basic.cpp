@@ -9,7 +9,7 @@ int main() {
 
   int N = 100;
 
-  wandbcpp::add_config({{"N", N}, {"mode", "abc"}});
+  wandbcpp::update_config({{"N", N}, {"mode", "abc"}});
 
   for (int i = 0; i < N; i++) {
     double t = M_PI * i / N;
@@ -18,6 +18,8 @@ int main() {
     wandbcpp::log({{"t", t}, {"x", x}, {"y", y}});
     std::cout << "i : " << i << std::endl;
   }
+
+  wandbcpp::update_summary({{"success", true}});
 
   wandbcpp::finish();
 }

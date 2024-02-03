@@ -21,7 +21,7 @@ int main() {
 
   int N = 100;
 
-  wandbcpp::add_config({{"N", N}, {"mode", "abc"}});
+  wandbcpp::update_config({{"N", N}, {"mode", "abc"}});
 
   for (int i = 0; i < N; i++) {
     double t = M_PI * i / N;
