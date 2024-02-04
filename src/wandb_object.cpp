@@ -3,10 +3,13 @@
 #include <iostream>
 #include <utility>
 
+#include "src/np_object.hpp"
 #include "src/py_util.hpp"
+
 namespace wandbcpp {
 
 using namespace internal::object;
+using namespace internal::util;
 
 internal::object::SharedPyObjectPtr& Table::TablePointer() {
   static internal::object::SharedPyObjectPtr table_;
@@ -47,7 +50,6 @@ PyObject* Table::get_pyobject() const {
   return PyObject_Call(TablePointer().get(), args.get(), kwargs.get());
 }
 
-
 internal::object::SharedPyObjectPtr& Object3D::Object3DPointer() {
   static internal::object::SharedPyObjectPtr object3d_;
   return object3d_;
@@ -71,5 +73,42 @@ PyObject* Object3D::get_pyobject() const {
   }
   return nullptr;
 }
+
+#ifdef USE_OPENCV
+
+internal::object::SharedPyObjectPtr& Image::ImagePointer() {
+  static internal::object::SharedPyObjectPtr image_;
+  return image_;
+}
+
+PyObject* Image::get_pyobject() const {
+  if (cv_mat_) {
+    PyList data;
+    for (int i = 0; i < cv_mat_->rows; i++) {
+      PyList row;
+      for (int j = 0; j < cv_mat_->cols; j++) {
+        PyList pixel;
+        for (int k = 0; k < cv_mat_->channels(); k++) {
+          pixel.append((int)(cv_mat_->at<cv::Vec3b>(i, j)[k]));
+        }
+        // convert GBR to RGB
+        pixel.reverse();
+        row.append(pixel);
+      }
+      data.append(row);
+    }
+
+    auto ret = PyCall(ImagePointer(), PyTuple(numpy::ndarray(data)));
+
+    return ret.release();
+
+  } else if (path_to_image_) {
+    auto ret = PyCall(ImagePointer(), PyTuple(path_to_image_.value()));
+    return ret.release();
+  }
+  return nullptr;
+}
+
+#endif
 
 }  // namespace wandbcpp

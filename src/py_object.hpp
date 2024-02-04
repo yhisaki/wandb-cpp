@@ -31,15 +31,16 @@ class SharedPyObjectPtr {
  public:
   SharedPyObjectPtr();
   explicit SharedPyObjectPtr(PyObject* ptr);
-  SharedPyObjectPtr& operator=(PyObject* ptr);
-  SharedPyObjectPtr& operator=(const SharedPyObjectPtr& src);
-  ~SharedPyObjectPtr();
   SharedPyObjectPtr(const SharedPyObjectPtr& src);
   SharedPyObjectPtr(SharedPyObjectPtr&& src);
+  ~SharedPyObjectPtr();
+  SharedPyObjectPtr& operator=(PyObject* ptr);
+  SharedPyObjectPtr& operator=(const SharedPyObjectPtr& src);
   SharedPyObjectPtr& operator=(SharedPyObjectPtr&& src);
   PyObject* get() const;
   bool is_null() const;
   PyObject* operator->();
+  PyObject* release();
 };
 
 std::ostream& operator<<(std::ostream& os, const PyObjectBase& obj);
@@ -118,6 +119,14 @@ class PyList : public PyObjectBaseClonable<PyList> {
   std::vector<std::shared_ptr<PyObjectBase>> items_;
 
   PyList() {}
+  // move constructor
+  PyList(PyList&& other) : items_(std::move(other.items_)) {}
+  // copy constructor
+  PyList(const PyList& other) {
+    for (const auto& item : other.items_) {
+      items_.emplace_back(item->clone());
+    }
+  }
 
   template <std::input_iterator InputIterator>
   PyList(InputIterator first, InputIterator last) {
@@ -135,6 +144,8 @@ class PyList : public PyObjectBaseClonable<PyList> {
   void append(const T& v) {
     items_.emplace_back(create_pybjectbase_ptr(v));
   }
+
+  PyList& reverse();
 
   size_t size() const;
 

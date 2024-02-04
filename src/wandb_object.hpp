@@ -8,6 +8,10 @@
 #include "src/py_object.hpp"
 #include "wandbcpp.hpp"
 
+#ifdef USE_OPENCV
+#include <opencv2/opencv.hpp>
+#endif
+
 namespace wandbcpp {
 
 class Table : public internal::object::PyObjectBaseClonable<Table> {
@@ -42,6 +46,28 @@ class Object3D : public internal::object::PyObjectBaseClonable<Object3D> {
 
   PyObject* get_pyobject() const override;
 };
+
+#ifdef USE_OPENCV
+
+class Image : public internal::object::PyObjectBaseClonable<Image> {
+  friend class wandb;
+  static internal::object::SharedPyObjectPtr& ImagePointer();
+
+ private:
+  std::optional<cv::Mat> cv_mat_;
+  std::optional<std::string> path_to_image_;
+
+ public:
+  Image() = default;
+  explicit Image(const cv::Mat& cv_mat) : cv_mat_(cv_mat) {}
+  explicit Image(cv::Mat&& cv_mat) : cv_mat_(std::move(cv_mat)) {}
+  explicit Image(const std::string& path_to_image)
+      : path_to_image_(path_to_image) {}
+
+  PyObject* get_pyobject() const override;
+};
+
+#endif
 
 }  // namespace wandbcpp
 

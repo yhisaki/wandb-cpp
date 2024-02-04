@@ -40,6 +40,11 @@ SharedPyObjectPtr& SharedPyObjectPtr::operator=(SharedPyObjectPtr&& src) {
 PyObject* SharedPyObjectPtr::get() const { return ptr_; }
 bool SharedPyObjectPtr::is_null() const { return ptr_ == nullptr; }
 PyObject* SharedPyObjectPtr::operator->() { return ptr_; }
+PyObject* SharedPyObjectPtr::release() {
+  PyObject* ptr = ptr_;
+  ptr_ = nullptr;
+  return ptr;
+}
 
 std::ostream& operator<<(std::ostream& os, const PyObjectBase& obj) {
   if (Py_IsInitialized() == 0) {
@@ -124,6 +129,11 @@ size_t PyList::size() const { return items_.size(); }
 const PyObjectBase& PyList::operator[](size_t i) const { return *items_[i]; }
 
 PyObjectBase& PyList::operator[](size_t i) { return *items_[i]; }
+
+PyList& PyList::reverse() {
+  std::reverse(items_.begin(), items_.end());
+  return *this;
+}
 
 PyObject* PyList::get_pyobject() const {
   PyObject* lst = PyList_New(items_.size());
