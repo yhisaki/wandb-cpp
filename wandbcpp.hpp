@@ -28,6 +28,7 @@ class wandb {
 
  public:
   wandb();
+  ~wandb() {}
 
   struct init_args {
     std::string project;

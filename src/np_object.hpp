@@ -27,6 +27,8 @@ class ndarray : public internal::object::PyObjectBaseClonable<ndarray> {
 
   explicit ndarray(const internal::object::PyList& data, dtype dtype);
 
+  ~ndarray() {}
+
   PyObject* get_pyobject() const override;
 };
 

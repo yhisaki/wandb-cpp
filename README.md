@@ -134,7 +134,7 @@ int main() {
     return {dist(engine), dist(engine), dist(engine)};
   }
 
-  int main(int argc, char const* argv[]) {
+  int main() {
     namespace np = wandbcpp::numpy;
 
     wandbcpp::init({.project = "example_wandb_cpp", .tags = {"object3d"}});

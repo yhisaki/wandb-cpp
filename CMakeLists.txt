@@ -5,7 +5,7 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON) #...is required...
 set(CMAKE_CXX_EXTENSIONS OFF) #...without compiler extensions like gnu++11
 
 option(BUILD_WANDBCPP_EXE OFF)
-option(USE_OPENCV TRUE)
+option(USE_OPENCV OFF)
 
 project(wandb-cpp)
 

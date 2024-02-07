@@ -14,6 +14,7 @@
 namespace wandbcpp::internal::object {
 
 struct PyObjectBase {
+  virtual ~PyObjectBase() {}
   virtual PyObject* get_pyobject() const = 0;
   virtual PyObjectBase* clone() const = 0;
 };
@@ -52,6 +53,7 @@ class PyBasicType : public PyObjectBaseClonable<PyBasicType<ValueType>> {
 
  public:
   PyBasicType(const ValueType& value) : value(value) {}
+  ~PyBasicType() {}
   PyObject* get_pyobject() const override;
 };
 
@@ -72,6 +74,7 @@ class PyBasicType<char[N]> : public PyObjectBaseClonable<PyBasicType<char[N]>> {
 
  public:
   PyBasicType(const char (&arr)[N]) : str(arr) {}
+  ~PyBasicType() {}
   PyObject* get_pyobject() const override { return str.get_pyobject(); }
 };
 
@@ -81,6 +84,7 @@ class PyDictItem {
 
  public:
   PyDictItem(std::string key);
+  ~PyDictItem(){}
   PyDictItem(const std::string& key, const PyObjectBase& value);
   template <class ValueType>
   PyDictItem(const std::string& key, const ValueType& value)
@@ -107,6 +111,7 @@ class PyDict : public PyObjectBaseClonable<PyDict> {
   PyDict(const std::initializer_list<PyDictItem>& items);
   PyDict();
   PyDict(const PyDict& other);
+  ~PyDict(){}
   PyDictItem& operator[](std::string key);
   void update(const PyDict& other);
   void clear();
@@ -119,8 +124,6 @@ class PyList : public PyObjectBaseClonable<PyList> {
   std::vector<std::shared_ptr<PyObjectBase>> items_;
 
   PyList() {}
-  // move constructor
-  PyList(PyList&& other) : items_(std::move(other.items_)) {}
   // copy constructor
   PyList(const PyList& other) {
     for (const auto& item : other.items_) {
@@ -134,6 +137,7 @@ class PyList : public PyObjectBaseClonable<PyList> {
       append(*it);
     }
   }
+
   template <class... Items>
   PyList(const Items&... items) {
     using swallow = int[];
@@ -161,6 +165,7 @@ class PyTuple : public PyObjectBaseClonable<PyTuple> {
 
  public:
   PyTuple();
+  ~PyTuple(){}
   template <class... Items>
   PyTuple(const Items&... items) {
     using swallow = int[];
