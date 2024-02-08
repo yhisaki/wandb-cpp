@@ -1,14 +1,27 @@
+<div align="center">
+  <img src="https://i.imgur.com/RUtiVzH.png" width="600" /><br><br>
+</div>
+
+
 # WandB-CPP
+
+Unofficial C++ binding for [Weight & Biases](https://wandb.ai/site).
 
 ## Installation
 
 wandb-cpp works by wrapping the [Weight & Biases](https://wandb.ai/site).So, you need to install wandb according to [this procedure](https://docs.wandb.ai/quickstart) first.
+
+```bash
+pip install wandb
+```
 
 The required Python packages are listed in the requirements.txt file.
 
 ## Usage
 
 ### Basic Usage
+
+Execution result is [here](https://wandb.ai/hisaki/example_wandb_cpp/runs/2runz37w)!
 
 ```cpp
 #include <cmath>
@@ -34,26 +47,50 @@ int main() {
   wandbcpp::finish();
 }
 ```
+![result](assets/example_log_basic.png)
 
-- [result](https://wandb.ai/hisaki/example_wandb_cpp/runs/2runz37w)
+### Upload Image
+
+Execution result is [here](https://wandb.ai/hisaki/example_wandb_cpp/runs/g5lgkjja)!
+
+```cpp
+#include <opencv2/opencv.hpp>
+#include "wandbcpp.hpp"
+
+int main()
+{
+  wandbcpp::init({.project = "example_wandb_cpp", .tags = {"image"}});
+  cv::Mat img = cv::imread("examples/data/lena.png");
+  wandbcpp::log({{"image_from_array", wandbcpp::Image(img)}});
+  wandbcpp::log(
+      {{"image_from_path", wandbcpp::Image("examples/data/lena.png")}});
+  wandbcpp::finish();
+}
+```
+
+![result](assets/example_image.png)
 
 ### Save File
+
+Execution result is [here](https://wandb.ai/hisaki/example_wandb_cpp/runs/1g5qxcfh)!
 
 ```cpp
 #include "wandbcpp.hpp"
 
 int main() {
   wandbcpp::init({.project = "example_wandb_cpp", .tags = {"save file"}});
-  wandbcpp::save(__FILE__);  // save this source code
+  wandbcpp::save("examples/data/lena.png");  // save this source code
   wandbcpp::finish();
 }
 ```
 
-- [result](https://wandb.ai/hisaki/example_wandb_cpp/runs/1g5qxcfh)
+![result](assets/example_save_file.png)
 
 ### wandb.Table
 
 - use `add_data`
+
+  Execution result is [here](https://wandb.ai/hisaki/example_wandb_cpp/runs/2m6djvut)!
 
   ```cpp
   #include <cmath>
@@ -77,10 +114,11 @@ int main() {
     wandbcpp::finish();
   }
   ```
-
-  - [result](https://wandb.ai/hisaki/example_wandb_cpp/runs/2m6djvut)
+  ![result](assets/example_table_add_data.png)
 
 - use `add_column`
+
+  Execution result is [here](https://wandb.ai/hisaki/example_wandb_cpp/runs/3ijm1cne)!
 
   ```cpp
   #include "wandbcpp.hpp"
@@ -97,9 +135,11 @@ int main() {
   }
   ```
 
-  - [result](https://wandb.ai/hisaki/example_wandb_cpp/runs/3ijm1cne)
+  ![result](assets/example_table_add_column.png)
 
 - passing data in the constructor
+
+  Execution result is [here](https://wandb.ai/hisaki/example_wandb_cpp/runs/liy6u81n)!
 
   ```cpp
   #include "wandbcpp.hpp"
@@ -115,11 +155,13 @@ int main() {
   }
   ```
 
-  - [result](https://wandb.ai/hisaki/example_wandb_cpp/runs/ytswbgny)
+  ![result](assets/example_table_constructor.png)
 
 ### wandb.Object3D
 
 - plot pointcloud
+
+  Execution result is [here](https://wandb.ai/hisaki/example_wandb_cpp/runs/8o6pb0jn)!
 
   ```cpp
   #include <array>
@@ -155,7 +197,7 @@ int main() {
   }
   ```
 
-  - [result](https://wandb.ai/hisaki/example_wandb_cpp/runs/8o6pb0jn)
+  ![result](assets/example_object3d_pointcloud.png)
 
 ## Build examples
 
@@ -164,6 +206,11 @@ mkdir build && cd build
 cmake -D BUILD_WANDBCPP_EXE=ON ..
 make
 ```
+
+### CMake options
+
+- `BUILD_WANDBCPP_EXE` : Build examples. Default is `OFF`.
+- `USE_OPENCV` : To save image, use OpenCV. Default is `ON`.
 
 ## Implementation & Performance
 
