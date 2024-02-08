@@ -210,7 +210,7 @@ make
 ### CMake options
 
 - `BUILD_WANDBCPP_EXE` : Build examples. Default is `OFF`.
-- `USE_OPENCV` : To save image, use OpenCV. Default is `ON`.
+- `USE_OPENCV` : To save image, use OpenCV. Default is `OFF`.
 
 ## Implementation & Performance
 
