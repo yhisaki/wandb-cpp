@@ -109,6 +109,43 @@ PyObject* Image::get_pyobject() const {
   return nullptr;
 }
 
+internal::object::SharedPyObjectPtr& Video::VideoPointer() {
+  static internal::object::SharedPyObjectPtr video_;
+  return video_;
+}
+
+Video::Video(const std::string& path_to_video)
+    : path_to_video_(path_to_video) {}
+
+PyObject* Video::get_pyobject() const {
+  if (frames_.size() > 0) {
+    std::cout << "frames size: " << frames_.size() << std::endl;
+    PyList data;
+    for (const auto& frame : frames_) {
+      PyList channel_data;
+      for (int k = 0; k < frame.channels(); k++) {
+        PyList ch_data;
+        for (int i = 0; i < frame.rows; i++) {
+          PyList row;
+          for (int j = 0; j < frame.cols; j++) {
+            // GBR -> RGB
+            row.append((int)(frame.at<cv::Vec3b>(i, j)[2 - k]));
+          }
+          ch_data.append(row);
+        }
+        channel_data.append(ch_data);
+      }
+      data.append(channel_data);
+    }
+    auto ret = PyCall(VideoPointer(), PyTuple(numpy::ndarray(data)));
+    return ret.release();
+  } else if (path_to_video_) {
+    auto ret = PyCall(VideoPointer(), PyTuple(path_to_video_.value()));
+    return ret.release();
+  }
+  return nullptr;
+}
+
 #endif
 
 }  // namespace wandbcpp

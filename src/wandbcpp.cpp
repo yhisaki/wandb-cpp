@@ -60,6 +60,7 @@ void wandb::init(const init_args& ia) {
       PyObject_GetAttrString(wandb_module_.get(), "Object3D");
 #ifdef USE_OPENCV
   Image::ImagePointer() = PyObject_GetAttrString(wandb_module_.get(), "Image");
+  Video::VideoPointer() = PyObject_GetAttrString(wandb_module_.get(), "Video");
 #endif
 }
 
