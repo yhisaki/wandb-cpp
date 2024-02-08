@@ -1,5 +1,6 @@
 #ifndef WANDB_OBJECT_HPP_
 #define WANDB_OBJECT_HPP_
+#include <iterator>
 #include <optional>
 #include <string>
 #include <vector>
@@ -66,6 +67,23 @@ class Image : public internal::object::PyObjectBaseClonable<Image> {
   explicit Image(const std::string& path_to_image)
       : path_to_image_(path_to_image) {}
   ~Image() {}
+  PyObject* get_pyobject() const override;
+};
+
+class Video : public internal::object::PyObjectBaseClonable<Video> {
+  friend class wandb;
+  static internal::object::SharedPyObjectPtr& VideoPointer();
+
+ private:
+  std::vector<cv::Mat> frames_;
+  std::optional<std::string> path_to_video_;
+
+ public:
+  Video() = default;
+  template <std::input_iterator I>
+  explicit Video(I begin, I end) : frames_(begin, end) {}
+  explicit Video(const std::string& path_to_video);
+  ~Video() {}
   PyObject* get_pyobject() const override;
 };
 
