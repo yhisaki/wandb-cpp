@@ -1,5 +1,5 @@
 <div align="center">
-  <img src="https://i.imgur.com/RUtiVzH.png" width="600" /><br><br>
+  <img src="https://raw.githubusercontent.com/wandb/wandb/main/docs/README_images/logo-light.svg" width="600" /><br><br>
 </div>
 
 
