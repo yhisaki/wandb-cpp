@@ -58,6 +58,9 @@ void wandb::init(const init_args& ia) {
   Table::TablePointer() = PyObject_GetAttrString(wandb_module_.get(), "Table");
   Object3D::Object3DPointer() =
       PyObject_GetAttrString(wandb_module_.get(), "Object3D");
+#ifdef USE_OPENCV
+  Image::ImagePointer() = PyObject_GetAttrString(wandb_module_.get(), "Image");
+#endif
 }
 
 void wandb::log(const PyDict& logs) { PyCall(log_, PyTuple(logs)); }
