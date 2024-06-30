@@ -1,6 +1,7 @@
-<div align="center">
-  <img src="https://raw.githubusercontent.com/wandb/wandb/main/docs/README_images/logo-light.svg" width="600" /><br><br>
-</div>
+<p align="center">
+  <img src="https://raw.githubusercontent.com/wandb/wandb/main/assets/logo-dark.svg#gh-dark-mode-only" width="600" alt="Weights & Biases" />
+  <img src="https://raw.githubusercontent.com/wandb/wandb/main/assets/logo-light.svg#gh-light-mode-only" width="600" alt="Weights & Biases" />
+</p>
 
 
 # WandB-CPP
